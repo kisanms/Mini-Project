@@ -1,9 +1,9 @@
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
-
+app.use(express.json());
 const mongoUrl = "mongodb://localhost:27017";
-
+const bcrypt = require("bcryptjs");
 mongoose
   .connect(mongoUrl)
   .then(() => {
@@ -23,18 +23,20 @@ app.post("/register", async (req, res) => {
 
   const oldUser = await User.findOne({ email: email });
   if (oldUser) {
-    return res
-      .status(409)
-      .send({
-        statusbar: "error",
-        data: "User already exists with this email",
-      });
-
+    return res.send({
+      status: "error",
+      data: "User already exists with this email",
+    });
+  }
+  const encryptedPassword = await bcrypt.hash(password, 10);
   try {
-    await User.create({ name: name, email: email, mobile, password });
-    res
-      .status(201)
-      .send({ statusbar: "success", data: "User registered successfully" });
+    await User.create({
+      name: name,
+      email: email,
+      mobile,
+      password: encryptedPassword,
+    });
+    res.send({ status: "success", data: "User registered successfully" });
   } catch (error) {
     res.status(500).send({ statusbar: "error", data: error.message });
   }
