@@ -4,6 +4,11 @@ const mongoose = require("mongoose");
 app.use(express.json());
 const mongoUrl = "mongodb://localhost:27017";
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
+const JWT_SECRET =
+  "hvdvay6ert72839289()aiyg8t87qt72393293883uhefiuh78ttq3ifi78272jdsds039[]]pou89ywe";
+
 mongoose
   .connect(mongoUrl)
   .then(() => {
@@ -39,6 +44,30 @@ app.post("/register", async (req, res) => {
     res.send({ status: "success", data: "User registered successfully" });
   } catch (error) {
     res.status(500).send({ statusbar: "error", data: error.message });
+  }
+});
+
+app.post("/login-user", async (req, res) => {
+  const { email, password } = req.body;
+  console.log(req.body);
+  const oldUser = await User.findOne({ email: email });
+
+  if (!oldUser) {
+    return res.send({ data: "User doesn't exists!!" });
+  }
+
+  if (await bcrypt.compare(password, oldUser.password)) {
+    const token = jwt.sign({ email: oldUser.email }, JWT_SECRET);
+    console.log(token);
+    if (res.status(201)) {
+      return res.send({
+        status: "ok",
+        data: token,
+        userType: oldUser.userType,
+      });
+    } else {
+      return res.send({ error: "error" });
+    }
   }
 });
 
