@@ -12,20 +12,23 @@ const JWT_SECRET =
 mongoose
   .connect(mongoUrl)
   .then(() => {
-    console.log("database connection established");
+    console.log("Database connection established");
   })
   .catch((e) => {
-    console.log("connection error");
+    console.log("Connection error:", e);
   });
 
 app.get("/", (req, res) => {
   res.send({ statusbar: "Started" });
 });
+
 require("./UserDetails");
 const User = mongoose.model("UserInfo");
-app.post("/register", async (req, res) => {
-  const { name, email, mobile, password } = req.body;
 
+app.post("/register", async (req, res) => {
+  const { name, email, mobile, password, profileImage, gender } = req.body;
+
+  // Check if user already exists
   const oldUser = await User.findOne({ email: email });
   if (oldUser) {
     return res.send({
@@ -33,13 +36,19 @@ app.post("/register", async (req, res) => {
       data: "User already exists with this email",
     });
   }
+
+  // Encrypt password
   const encryptedPassword = await bcrypt.hash(password, 10);
+
   try {
+    // Create new user with profile image and gender
     await User.create({
-      name: name,
-      email: email,
+      name,
+      email,
       mobile,
       password: encryptedPassword,
+      profileImage,
+      gender,
     });
     res.send({ status: "success", data: "User registered successfully" });
   } catch (error) {
@@ -50,12 +59,14 @@ app.post("/register", async (req, res) => {
 app.post("/login-user", async (req, res) => {
   const { email, password } = req.body;
   console.log(req.body);
-  const oldUser = await User.findOne({ email: email });
 
+  // Find user by email
+  const oldUser = await User.findOne({ email: email });
   if (!oldUser) {
-    return res.send({ data: "User doesn't exists!!" });
+    return res.send({ data: "User doesn't exist!" });
   }
 
+  // Compare password
   if (await bcrypt.compare(password, oldUser.password)) {
     const token = jwt.sign({ email: oldUser.email }, JWT_SECRET);
     console.log(token);
@@ -68,11 +79,16 @@ app.post("/login-user", async (req, res) => {
     } else {
       return res.send({ error: "error" });
     }
+  } else {
+    return res.send({ data: "Incorrect password" });
   }
 });
+
 app.post("/userdata", async (req, res) => {
   const { token } = req.body;
+
   try {
+    // Verify token and retrieve user data
     const user = jwt.verify(token, JWT_SECRET);
     const useremail = user.email;
 
@@ -80,10 +96,10 @@ app.post("/userdata", async (req, res) => {
       return res.send({ status: "Ok", data: data });
     });
   } catch (error) {
-    return res.send({ error: error });
+    return res.send({ error: "Invalid token" });
   }
 });
 
 app.listen(5001, () => {
-  console.log("NodeJS server started...");
+  console.log("NodeJS server started on port 5001...");
 });

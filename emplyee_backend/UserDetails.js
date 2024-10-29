@@ -6,9 +6,12 @@ const UserDetailSchema = new mongoose.Schema(
     email: { type: String, unique: true },
     mobile: String,
     password: String,
+    profileImage: String, // Field for storing profile image URL
+    gender: String, // Field for storing gender
   },
   {
     collection: "UserInfo",
   }
 );
+
 mongoose.model("UserInfo", UserDetailSchema);
