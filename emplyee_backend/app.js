@@ -100,6 +100,29 @@ app.post("/userdata", async (req, res) => {
   }
 });
 
+// Create a Schema
+const profileSchema = new mongoose.Schema({
+  name: String,
+  contactPerson: String,
+  address: String,
+  about: String,
+  email: String,
+});
+
+// Create a Model
+const Profile = mongoose.model("Profile", profileSchema);
+
+// Endpoint to submit profile data
+app.post("/api/profiles", async (req, res) => {
+  const newProfile = new Profile(req.body);
+  try {
+    const savedProfile = await newProfile.save();
+    res.status(201).json(savedProfile);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(5001, () => {
   console.log("NodeJS server started on port 5001...");
 });
