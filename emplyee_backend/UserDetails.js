@@ -8,6 +8,7 @@ const UserDetailSchema = new mongoose.Schema(
     password: String,
     profileImage: String, // Field for storing profile image URL
     gender: String, // Field for storing gender
+    profession: String, // Field for storing
   },
   {
     collection: "UserInfo",

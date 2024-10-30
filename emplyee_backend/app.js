@@ -26,7 +26,8 @@ require("./UserDetails");
 const User = mongoose.model("UserInfo");
 
 app.post("/register", async (req, res) => {
-  const { name, email, mobile, password, profileImage, gender } = req.body;
+  const { name, email, mobile, password, profileImage, gender, profession } =
+    req.body;
 
   // Check if user already exists
   const oldUser = await User.findOne({ email: email });
@@ -49,6 +50,7 @@ app.post("/register", async (req, res) => {
       password: encryptedPassword,
       profileImage,
       gender,
+      profession,
     });
     res.send({ status: "success", data: "User registered successfully" });
   } catch (error) {
