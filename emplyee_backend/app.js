@@ -2,7 +2,8 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 app.use(express.json());
-const mongoUrl = "mongodb://localhost:27017";
+const mongoUrl =
+  "mongodb+srv://hms:hms394210@cluster0.7icyr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
